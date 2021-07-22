@@ -1,0 +1,72 @@
+version: "3.3"
+services:
+ 
+  # my-node:
+    # container_name: node-product
+    # build:
+      # dockerfile: Dockerfile
+      # context: ./
+    # command:  npm start 
+    # hostname: serverapi
+    # restart: always
+    # networks:
+      # - productions
+    # volumes:
+      # - ./app:/root/serverapi/
+    # ports:
+      # - "8989:5000"
+   my-mongo:
+    container_name: mongo-product
+    image: "mongo:latest"
+    hostname: my-mongo
+    networks:
+      - productions-api
+    volumes:
+      - /var/lib/datadb:/data/db/
+    #  - /var/lib/datadb/mongod.conf:/etc/mongod.conf
+    command: --auth
+    ports:
+      - "27017:27017"     
+
+   my-node:
+    container_name: node-product
+    image: "node:latest"
+    hostname: my-node
+    working_dir: /app
+    command: /bin/bash .shell.sh
+    #restart: always
+    depends_on:
+      - my-mongo
+    networks:
+      - productions-api
+    volumes:
+      -  /var/lib/jenkins/workspace/mynode/nodeapp:/app
+    ports:
+       - "9898:5000"
+  
+    #restart: always
+        # container_name: mysql-product
+    # image: "mysql:latest"
+    # hostname: mysql
+    # restart: always
+    # networks:
+      # - productions
+    # volumes:
+      # - ./db:/var/lib/mysql
+      # - ./my.cnf:/etc/mysql/my.cnf
+    # environment:
+      # - MYSQL_ROOT_PASSWORD=123abc
+      # - MYSQL_DATABASE=db-sites
+      # - MYSQL_USER=sitesuser
+      # - MYSQL_PASSWROD=sitespass
+      
+networks:
+  productions-api:
+    driver: bridge
+
+# volumes:
+  # dir-sites:
+    # driver_opts:
+      # device: /var/lib/jenkins/workspace/mynode/
+      # o: bind
+      # type: nfs
